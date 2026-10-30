@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario Interactivo RM 001-2026 Bolivia</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            blue: '#1E40AF',
+                            teal: '#0D9488',
+                            yellow: '#F59E0B',
+                            emerald: '#10B981',
+                            rose: '#F43F5E',
+                            purple: '#7C3AED',
+                            bg: '#F0F5FF'
+                        }
+                    },
+                    fontFamily: {
+                        heading: ['Outfit', 'sans-serif'],
+                        body: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0fdf4 50%, #fef3c7 100%);
+            min-height: 100vh;
+        }
+
+        .heading-font {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Animaciones personalizadas */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+
+        @keyframes pulse-success {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .animate-success {
+            animation: pulse-success 0.4s ease-in-out;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        .concept-card, .definition-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            touch-action: manipulation;
+        }
+
+        .concept-card:hover, .definition-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Estilo para items emparejados */
+        .matched {
+            opacity: 0.6;
+            pointer-events: none;
+            filter: grayscale(0.2);
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6 text-slate-800">
+
+    <!-- Contenedor Principal -->
+    <div class="max-w-5xl mx-auto">
+        
+        <!-- Encabezado -->
+        <header class="glass-card rounded-3xl p-6 mb-6 shadow-xl border border-white text-center relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-blue-400/20 rounded-full blur-2xl"></div>
+            <div class="absolute -left-10 -bottom-10 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl"></div>
+
+            <div class="inline-flex items-center gap-2 bg-blue-100 text-blue-800 text-xs md:text-sm font-semibold px-4 py-1.5 rounded-full mb-3 shadow-sm">
+                <i class="fa-solid fa-graduation-cap"></i> Normas Generales para la Gestión Educativa 2026
+            </div>
+            
+            <h1 class="heading-font text-2xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">
+                Desafío Interactivo: <span class="bg-gradient-to-r from-blue-600 via-teal-600 to-amber-500 bg-clip-text text-transparent">RM 001-2026</span>
+            </h1>
+            <p class="text-xs md:text-base text-slate-600 max-w-2xl mx-auto">
+                Relaciona cada concepto clave de la normativa educativa plurinacional de Bolivia con su correspondiente definición o aplicación práctica.
+            </p>
+
+            <!-- Barra de Estadísticas y Progreso -->
+            <div class="mt-6 grid grid-cols-3 gap-2 md:gap-4 max-w-xl mx-auto">
+                <div class="bg-white/80 rounded-2xl p-3 shadow-sm border border-slate-100">
+                    <span class="text-xs text-slate-500 font-medium block">Aciertos</span>
+                    <span id="score" class="text-xl md:text-2xl font-bold text-emerald-600">0 / 8</span>
+                </div>
+                <div class="bg-white/80 rounded-2xl p-3 shadow-sm border border-slate-100">
+                    <span class="text-xs text-slate-500 font-medium block">Intentos</span>
+                    <span id="attempts" class="text-xl md:text-2xl font-bold text-blue-600">0</span>
+                </div>
+                <div class="bg-white/80 rounded-2xl p-3 shadow-sm border border-slate-100">
+                    <span class="text-xs text-slate-500 font-medium block">Precisión</span>
+                    <span id="accuracy" class="text-xl md:text-2xl font-bold text-amber-500">100%</span>
+                </div>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="mt-5 w-full bg-slate-200/80 h-3 rounded-full overflow-hidden p-0.5">
+                <div id="progress-bar" class="bg-gradient-to-r from-blue-500 via-teal-400 to-emerald-500 h-full rounded-full transition-all duration-500 w-0"></div>
+            </div>
+        </header>
+
+        <!-- Instrucción Rápida -->
+        <div class="bg-blue-600/10 border border-blue-200 rounded-2xl p-3 mb-6 text-center text-xs md:text-sm text-blue-900 font-medium flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-circle-info text-blue-600 text-base"></i>
+            Haz clic en un <strong class="text-blue-700">Concepto</strong> y luego selecciona su <strong class="text-teal-700">Definición</strong> correcta para emparejarlos.
+        </div>
+
+        <!-- Tablero del Juego (Dos Columnas) -->
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            
+            <!-- Columna de Conceptos -->
+            <div class="flex flex-col gap-3">
+                <h2 class="heading-font text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 px-1">
+                    <i class="fa-solid fa-bookmark text-blue-600"></i> Conceptos Clave
+                </h2>
+                <div id="concepts-container" class="flex flex-col gap-3">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
+
+            <!-- Columna de Definiciones -->
+            <div class="flex flex-col gap-3">
+                <h2 class="heading-font text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 px-1">
+                    <i class="fa-solid fa-file-lines text-teal-600"></i> Definiciones / Aplicación Normativa
+                </h2>
+                <div id="definitions-container" class="flex flex-col gap-3">
+                    <!-- Dinámico por JS -->
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Pie de página informativo -->
+        <footer class="mt-8 text-center text-xs text-slate-500 pb-6">
+            Ministerio de Educación - Estado Plurinacional de Bolivia • Sistema Educativo Plurinacional (SEP)
+        </footer>
+    </div>
+
+    <!-- Modal de Felicitación / Resultado Final -->
+    <div id="result-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl text-center relative overflow-hidden transform scale-90 transition-transform duration-300" id="modal-content">
+            
+            <!-- Adornos de fondo del Modal -->
+            <div class="absolute -top-12 -right-12 w-28 h-28 bg-emerald-400/20 rounded-full blur-xl"></div>
+            <div class="absolute -bottom-12 -left-12 w-28 h-28 bg-blue-400/20 rounded-full blur-xl"></div>
+
+            <div class="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4 shadow-inner">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+
+            <h3 class="heading-font text-2xl md:text-3xl font-extrabold text-slate-800 mb-1">¡Excelente Trabajo!</h3>
+            <p class="text-sm text-slate-500 mb-6">Has completado con éxito el cuestionario sobre la Resolución Ministerial 001-2026.</p>
+
+            <!-- Resumen Estadístico -->
+            <div class="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-100 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-600">Puntaje Final:</span>
+                    <span id="modal-score" class="font-bold text-emerald-600 text-base">8 / 8</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-600">Total Intentos:</span>
+                    <span id="modal-attempts" class="font-bold text-blue-600 text-base">10</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-600">Nivel de Dominio:</span>
+                    <span id="modal-grade" class="font-bold text-purple-600 text-base">Excelente</span>
+                </div>
+            </div>
+
+            <button onclick="resetGame()" class="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-95 flex items-center justify-center gap-2 text-base">
+                <i class="fa-solid fa-rotate-right"></i> Intentar de nuevo
+            </button>
+        </div>
+    </div>
+
+    <!-- Script de Lógica del Cuestionario -->
+    <script>
+        // Datos del cuestionario basados en la RM 001-2026 Bolivia
+        const quizData = [
+            {
+                id: 1,
+                concept: "Gestión Escolar 2026",
+                definition: "Organización de las actividades educativas planificadas con 200 días hábiles de trabajo efectivo de aula.",
+                icon: "fa-calendar-days"
+            },
+            {
+                id: 2,
+                concept: "Inscripciones Escolares",
+                definition: "Proceso gratuito y directo para estudiantes antiguos. Se prohíbe cualquier cobro o reserva de cupo.",
+                icon: "fa-user-plus"
+            },
+            {
+                id: 3,
+                concept: "Proyecto Socio-Productivo (PSP)",
+                definition: "Estrategia pedagógica articuladora que vincula la escuela con la comunidad para responder a sus necesidades.",
+                icon: "fa-people-group"
+            },
+            {
+                id: 4,
+                concept: "Plan de Desarrollo Curricular (PDC)",
+                definition: "Instrumento operativo de planificación del maestro/a que organiza contenidos, momentos y criterios de evaluación.",
+                icon: "fa-pen-ruler"
+            },
+            {
+                id: 5,
+                concept: "Evaluación Cualitativa y Cuantitativa",
+                definition: "Proceso integral, permanente y científico sobre 100 puntos, valorando Ser, Saber, Hacer y Decidir.",
+                icon: "fa-chart-check"
+            },
+            {
+                id: 6,
+                concept: "Convivencia Escolar Armónica",
+                definition: "Normas de prevención de violencia y acoso escolar para promover el respeto mutuo y la cultura de paz.",
+                icon: "fa-handshake-angle"
+            },
+            {
+                id: 7,
+                concept: "Calendario Académico",
+                definition: "Cronograma oficial que fija el inicio de clases, descansos pedagógicos de invierno y cierre de gestión.",
+                icon: "fa-clock"
+            },
+            {
+                id: 8,
+                concept: "Formación Integral",
+                definition: "Desarrollo equilibrado de las dimensiones del ser humano articulado a los conocimientos socio-comunitarios.",
+                icon: "fa-brain"
+            }
+        ];
+
+        // Estado de la Aplicación
+        let selectedConcept = null;
+        let selectedDefinition = null;
+        let matchedPairs = 0;
+        let totalAttempts = 0;
+        let correctAnswers = 0;
+
+        // Web Audio API para Efectos Sonoros (Sin dependencias externas)
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'select') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now); // C5
+                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now); // A3
+                osc.frequency.setValueAtTime(180, now + 0.1);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+                osc.start(now);
+                osc.stop(now + 0.2);
+            }
+        }
+
+        // Inicializar Juego
+        function initGame() {
+            const conceptsContainer = document.getElementById('concepts-container');
+            const definitionsContainer = document.getElementById('definitions-container');
+
+            conceptsContainer.innerHTML = '';
+            definitionsContainer.innerHTML = '';
+
+            // Reiniciar Estado
+            selectedConcept = null;
+            selectedDefinition = null;
+            matchedPairs = 0;
+            totalAttempts = 0;
+            correctAnswers = 0;
+
+            updateStats();
+
+            // Mezclar Conceptos y Definiciones de forma independiente
+            const shuffledConcepts = [...quizData].sort(() => Math.random() - 0.5);
+            const shuffledDefinitions = [...quizData].sort(() => Math.random() - 0.5);
+
+            // Generar Cards de Conceptos
+            shuffledConcepts.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `concept-card bg-white p-4 rounded-2xl shadow-md border-2 border-slate-200/80 cursor-pointer flex items-center gap-3 hover:border-blue-400 group`;
+                card.dataset.id = item.id;
+                card.onclick = () => selectConcept(card, item.id);
+
+                card.innerHTML = `
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0">
+                        <i class="fa-solid ${item.icon}"></i>
+                    </div>
+                    <span class="font-bold text-slate-800 text-sm md:text-base leading-tight">${item.concept}</span>
+                `;
+                conceptsContainer.appendChild(card);
+            });
+
+            // Generar Cards de Definiciones
+            shuffledDefinitions.forEach(item => {
+                const card = document.createElement('div');
+                card.className = `definition-card bg-white p-4 rounded-2xl shadow-md border-2 border-slate-200/80 cursor-pointer flex items-start gap-3 hover:border-teal-400 group`;
+                card.dataset.id = item.id;
+                card.onclick = () => selectDefinition(card, item.id);
+
+                card.innerHTML = `
+                    <div class="w-7 h-7 rounded-full bg-teal-50 text-teal-600 flex items-center justify-center text-xs font-bold group-hover:bg-teal-600 group-hover:text-white transition-colors shrink-0 mt-0.5">
+                        <i class="fa-solid fa-align-left"></i>
+                    </div>
+                    <p class="text-slate-600 text-xs md:text-sm leading-snug">${item.definition}</p>
+                `;
+                definitionsContainer.appendChild(card);
+            });
+        }
+
+        // Seleccionar un Concepto
+        function selectConcept(element, id) {
+            if (element.classList.contains('matched')) return;
+            playSound('select');
+
+            // Quitar selección previa de concepto
+            document.querySelectorAll('.concept-card').forEach(el => {
+                if (!el.classList.contains('matched')) {
+                    el.classList.remove('border-blue-600', 'bg-blue-50/50', 'ring-2', 'ring-blue-400');
+                    el.classList.add('border-slate-200/80', 'bg-white');
+                }
+            });
+
+            // Marcar actual
+            element.classList.remove('border-slate-200/80', 'bg-white');
+            element.classList.add('border-blue-600', 'bg-blue-50/50', 'ring-2', 'ring-blue-400');
+
+            selectedConcept = { element, id };
+
+            checkMatch();
+        }
+
+        // Seleccionar una Definición
+        function selectDefinition(element, id) {
+            if (element.classList.contains('matched')) return;
+            playSound('select');
+
+            // Quitar selección previa de definición
+            document.querySelectorAll('.definition-card').forEach(el => {
+                if (!el.classList.contains('matched')) {
+                    el.classList.remove('border-teal-600', 'bg-teal-50/50', 'ring-2', 'ring-teal-400');
+                    el.classList.add('border-slate-200/80', 'bg-white');
+                }
+            });
+
+            // Marcar actual
+            element.classList.remove('border-slate-200/80', 'bg-white');
+            element.classList.add('border-teal-600', 'bg-teal-50/50', 'ring-2', 'ring-teal-400');
+
+            selectedDefinition = { element, id };
+
+            checkMatch();
+        }
+
+        // Comprobar coincidencia
+        function checkMatch() {
+            if (selectedConcept && selectedDefinition) {
+                totalAttempts++;
+
+                if (selectedConcept.id === selectedDefinition.id) {
+                    // --- ACIERTO ---
+                    playSound('correct');
+                    correctAnswers++;
+                    matchedPairs++;
+
+                    const cEl = selectedConcept.element;
+                    const dEl = selectedDefinition.element;
+
+                    // Aplicar clases de éxito
+                    [cEl, dEl].forEach(el => {
+                        el.classList.remove('border-blue-600', 'border-teal-600', 'bg-blue-50/50', 'bg-teal-50/50', 'ring-2', 'ring-blue-400', 'ring-teal-400');
+                        el.classList.add('matched', 'bg-emerald-50', 'border-emerald-500', 'animate-success');
+                    });
+
+                    // Cambiar icono en concepto
+                    const iconBox = cEl.querySelector('div');
+                    iconBox.className = 'w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg font-bold shrink-0';
+                    iconBox.innerHTML = '<i class="fa-solid fa-check"></i>';
+
+                    selectedConcept = null;
+                    selectedDefinition = null;
+
+                    updateStats();
+
+                    // Comprobar si completó el juego
+                    if (matchedPairs === quizData.length) {
+                        setTimeout(showCompletionModal, 600);
+                    }
+
+                } else {
+                    // --- ERROR ---
+                    playSound('wrong');
+                    const cEl = selectedConcept.element;
+                    const dEl = selectedDefinition.element;
+
+                    // Aplicar clases de error
+                    [cEl, dEl].forEach(el => {
+                        el.classList.remove('border-blue-600', 'border-teal-600', 'bg-blue-50/50', 'bg-teal-50/50', 'ring-2', 'ring-blue-400', 'ring-teal-400');
+                        el.classList.add('border-rose-500', 'bg-rose-50', 'animate-shake');
+                    });
+
+                    // Resetear selecciones tras pequeña animación
+                    setTimeout(() => {
+                        [cEl, dEl].forEach(el => {
+                            el.classList.remove('border-rose-500', 'bg-rose-50', 'animate-shake');
+                            el.classList.add('border-slate-200/80', 'bg-white');
+                        });
+                        selectedConcept = null;
+                        selectedDefinition = null;
+                    }, 550);
+
+                    updateStats();
+                }
+            }
+        }
+
+        // Actualizar Estadísticas
+        function updateStats() {
+            document.getElementById('score').innerText = `${correctAnswers} / ${quizData.length}`;
+            document.getElementById('attempts').innerText = totalAttempts;
+
+            const accuracy = totalAttempts > 0 ? Math.round((correctAnswers / totalAttempts) * 100) : 100;
+            document.getElementById('accuracy').innerText = `${accuracy}%`;
+
+            const progress = (matchedPairs / quizData.length) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+        }
+
+        // Mostrar Modal de Finalización con Confeti
+        function showCompletionModal() {
+            const modal = document.getElementById('result-modal');
+            const modalContent = document.getElementById('modal-content');
+
+            document.getElementById('modal-score').innerText = `${correctAnswers} / ${quizData.length}`;
+            document.getElementById('modal-attempts').innerText = totalAttempts;
+
+            const accuracy = Math.round((correctAnswers / totalAttempts) * 100);
+            let grade = "Excelente";
+            if (accuracy < 70) grade = "Bueno (Sigue Practicando)";
+            if (accuracy < 50) grade = "Necesita Repaso";
+            document.getElementById('modal-grade').innerText = grade;
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-90');
+                modalContent.classList.add('scale-100');
+            }, 50);
+
+            // Disparar Confetti Visual
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        // Reiniciar Juego
+        function resetGame() {
+            const modal = document.getElementById('result-modal');
+            const modalContent = document.getElementById('modal-content');
+
+            modal.classList.add('opacity-0');
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-90');
+
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                initGame();
+            }, 300);
+        }
+
+        // Inicializar al cargar la página
+        window.onload = initGame;
+    </script>
+</body>
+</html>
